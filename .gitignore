@@ -1,0 +1,17 @@
+# Built binary
+# Use `go build -o socks5-proxy .` (not `proxy`) so it doesn't collide with
+# the conventional proxy/ source subdirectory.
+/socks5-proxy
+*.exe
+
+# Test artifacts
+tests/proxy-binary
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Go
+vendor/

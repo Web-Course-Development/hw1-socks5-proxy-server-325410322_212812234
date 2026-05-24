@@ -1,0 +1,130 @@
+name: Autograding Tests
+on:
+  - push
+  - workflow_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  autograding:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Download test dependencies
+        run: cd tests && go mod download
+
+      - name: "Test 1: No Auth Handshake"
+        id: test-1
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "No Auth Handshake"
+          command: "cd tests && go test -v -run TestNoAuthHandshake -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 2: Username Password Auth"
+        id: test-2
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Username Password Auth"
+          command: "cd tests && go test -v -run TestUsernamePasswordAuth -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 3: Invalid Auth Rejection"
+        id: test-3
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Invalid Auth Rejection"
+          command: "cd tests && go test -v -run TestInvalidAuthRejection -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 4: Unsupported Method"
+        id: test-4
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Unsupported Method"
+          command: "cd tests && go test -v -run TestUnsupportedMethod -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 5: IPv4 Connect"
+        id: test-5
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "IPv4 Connect"
+          command: "cd tests && go test -v -run TestIPv4Connect -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 6: Domain Connect"
+        id: test-6
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Domain Connect"
+          command: "cd tests && go test -v -run TestDomainConnect -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 7: HTTP Through Proxy"
+        id: test-7
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "HTTP Through Proxy"
+          command: "cd tests && go test -v -run TestHTTPThroughProxy -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 8: Invalid Target"
+        id: test-8
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Invalid Target"
+          command: "cd tests && go test -v -run TestInvalidTarget -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 9: Concurrent Connections"
+        id: test-9
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Concurrent Connections"
+          command: "cd tests && go test -v -run TestConcurrentConnections -timeout 30s"
+          timeout: 2
+          max-score: 10
+
+      - name: "Test 10: Large Payload Relay"
+        id: test-10
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Large Payload Relay"
+          command: "cd tests && go test -v -run TestLargePayloadRelay -timeout 60s"
+          timeout: 3
+          max-score: 10
+
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          TEST-1_RESULTS: "${{steps.test-1.outputs.result}}"
+          TEST-2_RESULTS: "${{steps.test-2.outputs.result}}"
+          TEST-3_RESULTS: "${{steps.test-3.outputs.result}}"
+          TEST-4_RESULTS: "${{steps.test-4.outputs.result}}"
+          TEST-5_RESULTS: "${{steps.test-5.outputs.result}}"
+          TEST-6_RESULTS: "${{steps.test-6.outputs.result}}"
+          TEST-7_RESULTS: "${{steps.test-7.outputs.result}}"
+          TEST-8_RESULTS: "${{steps.test-8.outputs.result}}"
+          TEST-9_RESULTS: "${{steps.test-9.outputs.result}}"
+          TEST-10_RESULTS: "${{steps.test-10.outputs.result}}"
+        with:
+          runners: test-1,test-2,test-3,test-4,test-5,test-6,test-7,test-8,test-9,test-10
+        if: always()
