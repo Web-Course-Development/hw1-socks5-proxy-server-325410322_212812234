@@ -69,9 +69,13 @@ git push
 1. Open your repository in a browser.
 2. Click the **Actions** tab at the top.
 3. Click the most recent workflow run.
-4. Each test shows as a separate step with pass/fail status and full output.
+4. Scroll to the **Autograding Reporter** step at the bottom — this is the **real** score, with a per-test pass/fail table and a `Grand total tests passed: N/10` summary.
 
 **Your grade = (number of passing tests) × 10.** The autograder run for your last push **before the deadline** is what counts.
+
+> ⚠️ **Don't be fooled by the green checkmarks.** The 10 individual "Test N" steps will *all show ✓ success* even when tests are actually failing — that's a quirk of the GitHub Classroom autograding action: it always exits 0 and stashes the real result in an output that the Reporter reads. **Only the "Autograding Reporter" step's grading table is the truth.** Open it to see which tests passed/failed.
+
+> ℹ️ **You'll see ~3 failing "0/100" runs the moment you accept the assignment** — those are GitHub Classroom's own setup commits (creating the feedback branch, configuring the editor, etc.) triggering the autograder against the stub `main.go` before you've written any code. Ignore them; the only run that counts is the one after your real push.
 
 ### Do not modify
 
