@@ -224,20 +224,21 @@ func handleConnect(conn net.Conn) (net.Conn, error) {
 
 	return targetConn, nil
 }
-func sendReply(conn net.Conn, rep byte) {
+func sendReply(conn net.Conn, rep byte) error {
 
-	reply := []byte{
-		0x05,
-		rep,
-		0x00,
-		0x01,
-		0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00,
-	}
+	reply := make([]byte, 10)
 
-	conn.Write(reply)
+	reply[0] = 0x05
+	reply[1] = rep
+	reply[2] = 0x00
+	reply[3] = 0x01
+
+	_, err := conn.Write(reply)
+	return err
 }
 func relay(client net.Conn, target net.Conn) {
+
+	done := make(chan struct{}, 2)
 
 	go func() {
 		io.Copy(target, client)
@@ -245,11 +246,20 @@ func relay(client net.Conn, target net.Conn) {
 		if tcp, ok := target.(*net.TCPConn); ok {
 			tcp.CloseWrite()
 		}
+
+		done <- struct{}{}
 	}()
 
-	io.Copy(client, target)
+	go func() {
+		io.Copy(client, target)
 
-	if tcp, ok := client.(*net.TCPConn); ok {
-		tcp.CloseWrite()
-	}
+		if tcp, ok := client.(*net.TCPConn); ok {
+			tcp.CloseWrite()
+		}
+
+		done <- struct{}{}
+	}()
+
+	<-done
+	<-done
 }
